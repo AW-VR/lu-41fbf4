@@ -44,7 +44,10 @@ nav button b{font-size:22px}nav button.on{color:var(--pd)}
 .un{display:flex;gap:8px;align-items:center;margin:4px 0}.un span{font-size:12px;font-weight:700;color:var(--mut);min-width:38px}
 .skc input,.skc select{font-size:16px;padding:8px}.ulk{font-size:13px;color:var(--mut);margin-top:4px}.ulk b{color:var(--pd)}
 .ed{display:flex;gap:6px;margin:6px 0}.ed input{padding:8px}.ed .xp{width:64px}
-</style></head><body>
+</style>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon.svg">
+</head><body>
 <header><h1 id="hd">Level Up 💖</h1><div class="mut" id="sub"></div></header>
 <main id="main"></main>
 <nav id="nav"></nav>
@@ -252,4 +255,9 @@ function SE_act(a,x,t){
 document.addEventListener('input',function(ev){var t=ev.target;if(t.closest&&t.closest('#ske')&&t.tagName==='INPUT'&&t.type!=='checkbox')SE_in(t)});
 window.__lu={S:function(){return S},key:KEY};
 S=load();if(S&&S.skills)render();else onboard();
+</script>
+<script>
+if('serviceWorker' in navigator&&/^https?:$/.test(location.protocol)){
+  window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});
+}
 </script></body></html>
