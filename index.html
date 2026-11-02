@@ -35,6 +35,14 @@ nav button b{font-size:22px}nav button.on{color:var(--pd)}
 #toast.show{opacity:1}
 .res{display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px dashed var(--pl)}.res img{width:48px;height:64px;object-fit:cover;border-radius:8px;background:var(--pl)}
 .reveal{animation:pop .6s}@keyframes pop{0%{transform:scale(.6);opacity:0}80%{transform:scale(1.05)}100%{transform:scale(1)}}
+.ske{position:fixed;inset:0;z-index:25;background:rgba(90,42,69,.45);display:none;align-items:flex-end;justify-content:center}.ske.show{display:flex}
+.skc{width:100%;max-width:520px;max-height:88vh;overflow-y:auto;background:var(--bg);border-radius:22px 22px 0 0;padding:14px 14px calc(20px + env(safe-area-inset-bottom));box-shadow:0 -6px 24px rgba(224,72,144,.3)}
+.skc label.l{display:block;font-size:12px;font-weight:700;color:var(--mut);margin:12px 0 4px;text-transform:uppercase;letter-spacing:.04em}
+.emo{display:grid;grid-template-columns:repeat(8,1fr);gap:4px}.emo button{font-size:20px;padding:6px 0;min-height:40px;background:#fff;border:2px solid var(--pl);border-radius:12px}.emo button.on{border-color:var(--p);background:var(--pl)}
+.sa{background:#fff;border:2px solid var(--pl);border-radius:14px;padding:8px;margin:6px 0}.g2{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}.g2 label{font-size:12px;color:var(--mut);display:grid;gap:2px}
+.ck{display:flex;align-items:center;gap:8px;padding:6px 0;font-weight:600}.ck input{width:22px;height:22px}
+.un{display:flex;gap:8px;align-items:center;margin:4px 0}.un span{font-size:12px;font-weight:700;color:var(--mut);min-width:38px}
+.skc input,.skc select{font-size:16px;padding:8px}.ulk{font-size:13px;color:var(--mut);margin-top:4px}.ulk b{color:var(--pd)}
 .ed{display:flex;gap:6px;margin:6px 0}.ed input{padding:8px}.ed .xp{width:64px}
 </style></head><body>
 <header><h1 id="hd">Level Up 💖</h1><div class="mut" id="sub"></div></header>
@@ -60,11 +68,25 @@ function uid(){return Math.random().toString(36).slice(2,9)}
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return '&#'+c.charCodeAt(0)+';'})}
 function dk(d){d=d||new Date();return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
 function wk(){var d=new Date();d.setDate(d.getDate()-((d.getDay()+6)%7));return dk(d)}
-function load(){try{return JSON.parse(localStorage.getItem(KEY))}catch(e){return null}}
+var UNL=['Just starting 🌱','Getting the hang of it','Finding my groove 🎶','Consistent queen','Confident ✨','Skilled 💅','Advanced 🌟','Expert 💎','Master 👑','Legend 🏆'];
+var QT=[['daily','☀️ Daily habits'],['quest','🗺️ Side quests'],['weekly','🐉 Weekly bosses'],['book','📚 Book bosses'],['log','📝 Free log']];
+function allStats(){var o=[];Object.keys(CATS).forEach(function(k){if(o.indexOf(CATS[k].stat)<0)o.push(CATS[k].stat)});Object.keys((S&&S.stats)||{}).forEach(function(k){if(o.indexOf(k)<0)o.push(k)});return o}
+function num(v,lo,hi,d){v=Math.round(+v);if(!isFinite(v))v=d;return Math.max(lo,Math.min(hi,v))}
+// Safe, idempotent migration: older saves get stat, activities, quest types, unlock text and peak, without touching XP or history.
+function migrate(d){if(!d||!Array.isArray(d.skills))return d;d.stats=d.stats&&typeof d.stats==='object'?d.stats:{};d.alog=d.alog&&typeof d.alog==='object'?d.alog:{};
+ d.skills=d.skills.filter(function(k){return k&&k.id});
+ d.skills.forEach(function(k){k.e=k.e||'🌟';k.n=String(k.n||'Skill');k.xp=Math.max(0,+k.xp||0);k.pk=Math.max(+k.pk||0,k.xp);
+  if(!k.stat){var c=CATS[k.id];k.stat=c?c.stat:(Object.keys(d.stats)[0]||'Joy')}d.stats[k.stat]=1;
+  if(!Array.isArray(k.acts))k.acts=[];k.acts=k.acts.filter(function(a){return a&&a.id}).map(function(a){return{id:String(a.id),n:String(a.n||'Activity'),xp:num(a.xp,0,500,10),cap:num(a.cap,1,20,1)}});
+  if(!k.qt||typeof k.qt!=='object')k.qt={daily:1,quest:1,weekly:1,book:1,log:1};
+  if(!k.un||typeof k.un!=='object'){k.un={};UNL.forEach(function(t,i){k.un[i+1]=t})}});
+ d.v=Math.max(+d.v||1,2);return d}
+function load(){try{return migrate(JSON.parse(localStorage.getItem(KEY)))}catch(e){return null}}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast('Could not save 😢')}}
 function need(L){return 100+50*(L-1)}
 function lvl(xp){var L=1;while(xp>=need(L)){xp-=need(L);L++}return{L:L,into:xp,need:need(L)}}
 function skL(xp){return Math.min(10,1+Math.floor(xp/60))}
+function skStatL(st){var L=1;S.skills.forEach(function(k){if(k.stat===st)L=Math.max(L,skL(k.xp))});return L}
 function toast(m){var t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove('show')},2200)}
 // --- audio + fx
 var AC;function chime(love){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();var notes=love?[659,784,988,1319]:[523,659,784,1047];var t=AC.currentTime;
@@ -74,17 +96,17 @@ function hearts(){var fx=$('#fx'),H=['💖','💕','💗','💘','❤️','💞'
 function celebrate(love){chime(love);love?hearts():confetti()}
 // --- xp
 function totalXP(){return S.log.reduce(function(a,l){return a+l.xp},0)}
-function gain(xp,what,skill,love){var before=lvl(totalXP()).L;S.log.push({d:dk(),xp:xp,w:what});if(S.log.length>3000)S.log=S.log.slice(-3000);
- var sk=S.skills.find(function(s){return s.id===skill});if(sk){var o=skL(sk.xp);sk.xp+=xp;if(skL(sk.xp)>o)setTimeout(function(){toast(sk.e+' '+sk.n+' is now Lv '+skL(sk.xp)+'!')},1200)}
+function gain(xp,what,skill,love,qt){var before=lvl(totalXP()).L;S.log.push({d:dk(),xp:xp,w:what});if(S.log.length>3000)S.log=S.log.slice(-3000);
+ var sk=S.skills.find(function(s){return s.id===skill});if(sk&&qt&&qt!=='act'&&sk.qt&&!sk.qt[qt])sk=null;if(sk){var o=skL(sk.xp);sk.xp+=xp;sk.pk=Math.max(sk.pk||0,sk.xp);if(skL(sk.xp)>o)setTimeout(function(){toast(sk.e+' '+sk.n+' is now Lv '+skL(sk.xp)+'!')},1200)}
  S.chapter.xp+=xp;save();celebrate(love);var a=lvl(totalXP()).L;toast(a>before?'🎉 LEVEL UP! You\'re Level '+a+' 👑':'+'+xp+' XP '+(love?'💕':'✨'));render()}
 // --- plan builder
 function build(a){var s={v:1,name:a.name||'Shermayne',days:a.days||4,likes:a.likes||'',cats:a.cats,stats:{},skills:[],dailies:[],bosses:[],quests:[],done:{},bdone:{},logs:{},log:[],chapter:{n:1,xp:0}};
- a.cats.forEach(function(k){var c=CATS[k];s.stats[c.stat]=1;var sid=k;s.skills.push({id:sid,e:c.e,n:c.skill,xp:0});
+ a.cats.forEach(function(k){var c=CATS[k];s.stats[c.stat]=1;var sid=k;s.skills.push({id:sid,e:c.e,n:c.skill,xp:0,stat:c.stat});
   c.d.slice(0,a.days>=5?2:1).forEach(function(d){s.dailies.push({id:uid(),e:d[0],n:d[1],xp:d[2],sk:sid,love:!!c.date})});
   s.bosses.push({id:uid(),type:'weekly',e:c.b[0],n:c.b[1],xp:c.b[2],goal:Math.min(c.b[3],a.days),sk:sid,love:!!c.date});
   if(c.date)DATES.slice(0,2).forEach(function(d){s.quests.push({id:uid(),e:d[0],n:d[1],xp:d[2],sk:sid,love:true})})});
  if(a.likes){a.likes.split(/,|\band\b/).map(function(x){return x.trim()}).filter(Boolean).slice(0,3).forEach(function(x){s.quests.push({id:uid(),e:'🌟',n:'Spend time on: '+x,xp:25,sk:a.cats.indexOf('hobbies')>=0?'hobbies':(a.cats.indexOf('reading')>=0?'reading':a.cats[0])})})}
- s.chapter.title=chTitle(1,s);s.chapter.goal=chGoal(1,s);return s}
+ s.chapter.title=chTitle(1,s);s.chapter.goal=chGoal(1,s);return migrate(s)}
 function chTitle(n,s){var t=['The Glow-Up Begins 🌱','Finding My Rhythm 🎶','Main Character Energy 💅','Unstoppable Queen 👑','Legendary Bloom 🌸'];return 'Chapter '+n+': '+(t[n-1]||'Even More Fabulous ✨')}
 function chGoal(n,s){return Math.round((150+60*s.dailies.length)*(1+.3*(n-1))/10)*10}
 // --- onboarding
@@ -118,11 +140,11 @@ function find(arr,id){return arr.find(function(q){return q.id===id})}
 function act(a,x,t){var q;
  if(a==='tab'){tab=x;render();scrollTo(0,0);return}
  if(a==='daily'){q=find(S.dailies,x);var td=today();if(td[x]){toast('Already done today ✅');return}td[x]=1;
-  S.bosses.forEach(function(b){if(b.type==='weekly'&&b.sk===q.sk){var w=S.bdone[b.id]||(S.bdone[b.id]={wk:wk(),n:0,won:0});if(w.wk!==wk()){w.wk=wk();w.n=0;w.won=0}}});gain(q.xp,q.n,q.sk,q.love);return}
- if(a==='quest'){q=find(S.quests,x);S.quests=S.quests.filter(function(z){return z.id!==x});(S.doneQ=S.doneQ||[]).push(q);gain(q.xp,q.n,q.sk,q.love);return}
- if(a==='hit'){q=find(S.bosses,x);var w=bw(q);if(w.won){toast('Boss already beaten this week 👑');return}w.n++;if(w.n>=q.goal){w.won=1;gain(q.xp,'Defeated: '+q.n,q.sk,q.love);toast('🐉 BOSS DEFEATED! +'+q.xp+' XP')}else{save();chime(q.love);render();toast('💥 Hit! '+w.n+'/'+q.goal)}return}
- if(a==='chap'){q=find(S.bosses,x);q.read++;if(q.read>=q.goal){q.won=1;gain(q.xp,'Finished book: '+q.n,'reading');toast('📚 BOOK BOSS DEFEATED! +'+q.xp+' XP')}else gain(15,'Read a chapter of '+q.n,S.skills.find(function(s){return s.id==='reading'})?'reading':null);return}
- if(a==='log'){var n=S.logs[dk()]||0;if(n>=LOG_CAP){toast('Daily cap reached ('+LOG_CAP+') — rest, queen 😴');return}var what=$('#logW').value.trim()||'Did something good',sk=$('#logS').value;S.logs[dk()]=n+1;gain(LOG_XP,what,sk);return}
+  S.bosses.forEach(function(b){if(b.type==='weekly'&&b.sk===q.sk){var w=S.bdone[b.id]||(S.bdone[b.id]={wk:wk(),n:0,won:0});if(w.wk!==wk()){w.wk=wk();w.n=0;w.won=0}}});gain(q.xp,q.n,q.sk,q.love,'daily');return}
+ if(a==='quest'){q=find(S.quests,x);S.quests=S.quests.filter(function(z){return z.id!==x});(S.doneQ=S.doneQ||[]).push(q);gain(q.xp,q.n,q.sk,q.love,'quest');return}
+ if(a==='hit'){q=find(S.bosses,x);var w=bw(q);if(w.won){toast('Boss already beaten this week 👑');return}w.n++;if(w.n>=q.goal){w.won=1;gain(q.xp,'Defeated: '+q.n,q.sk,q.love,'weekly');toast('🐉 BOSS DEFEATED! +'+q.xp+' XP')}else{save();chime(q.love);render();toast('💥 Hit! '+w.n+'/'+q.goal)}return}
+ if(a==='chap'){q=find(S.bosses,x);q.read++;if(q.read>=q.goal){q.won=1;gain(q.xp,'Finished book: '+q.n,q.sk||'reading',0,'book');toast('📚 BOOK BOSS DEFEATED! +'+q.xp+' XP')}else gain(15,'Read a chapter of '+q.n,q.sk||(S.skills.find(function(s){return s.id==='reading'})?'reading':null),0,'book');return}
+ if(a==='log'){var n=S.logs[dk()]||0;if(n>=LOG_CAP){toast('Daily cap reached ('+LOG_CAP+') — rest, queen 😴');return}var what=$('#logW').value.trim()||'Did something good',sk=$('#logS').value;S.logs[dk()]=n+1;gain(LOG_XP,what,sk,0,'log');return}
  if(a==='nextch'){S.chapter.n++;S.chapter.xp=0;S.chapter.title=chTitle(S.chapter.n,S);S.chapter.goal=chGoal(S.chapter.n,S);save();celebrate();toast('📖 '+S.chapter.title);render();return}
  if(a==='bsearch'){bookSearch($('#bq').value);return}
  if(a==='rsearch'){recipeSearch($('#rq').value);return}
@@ -133,13 +155,15 @@ function act(a,x,t){var q;
   if(l==='dailies')S.dailies.push({id:uid(),e:'⭐',n:n,xp:10,sk:sk0});
   if(l==='quests')S.quests.push({id:uid(),e:/date|together|love/i.test(n)?'💕':'⭐',n:n,xp:25,sk:sk0,love:/date|together|love|kiss|romantic/i.test(n)});
   if(l==='bosses')S.bosses.push({id:uid(),type:'weekly',e:'🐉',n:n,xp:80,goal:3,sk:sk0});
-  if(l==='skills')S.skills.push({id:uid(),e:'🌟',n:n,xp:0});save();render();return}
+  if(l==='skills')S.skills.push({id:uid(),e:'🌟',n:n,xp:0});migrate(S);save();render();return}
+ if(SE_act(a,x,t))return;
  if(a==='exp'){var b=new Blob([JSON.stringify(Object.assign({app:'levelup-shermayne',exportedAt:new Date().toISOString()},S),null,1)],{type:'application/json'});var l2=document.createElement('a');l2.href=URL.createObjectURL(b);l2.download='levelup-'+dk()+'.json';document.body.appendChild(l2);l2.click();l2.remove();toast('💾 Exported!');return}
  if(a==='imp'){$('#impF').click();return}
  if(a==='reset'){if(confirm('Start over from the questions? This erases progress (export first!)')){localStorage.removeItem(KEY);onboard()}return}
 }
 document.addEventListener('change',function(ev){var t=ev.target;
- if(t.id==='impF'&&t.files[0]){var r=new FileReader();r.onload=function(){try{var d=JSON.parse(r.result);if(!d.skills||!d.log)throw 0;delete d.app;delete d.exportedAt;S=d;save();render();toast('📥 Progress imported!')}catch(e){toast('That file doesn\'t look right 😕')}};r.readAsText(t.files[0]);return}
+ if(t.id==='impF'&&t.files[0]){var r=new FileReader();r.onload=function(){try{var d=JSON.parse(r.result);if(!d.skills||!d.log)throw 0;delete d.app;delete d.exportedAt;S=migrate(d);save();render();toast('📥 Progress imported!')}catch(e){toast('That file doesn\'t look right 😕')}};r.readAsText(t.files[0]);return}
+ if(t.closest('#ske')){SE_in(t);return}
  if(t.dataset.f){var arr=S[t.dataset.l],q=find(arr,t.dataset.id);if(!q)return;var v=t.value;if(t.dataset.f==='xp'||t.dataset.f==='goal')v=Math.max(1,+v||1);if(t.dataset.f==='love')v=t.checked;q[t.dataset.f]=v;save();toast('Saved ✏️')}
  if(t.id==='nameIn'){S.name=t.value||S.name;save();render()}});
 function bw(b){var w=S.bdone[b.id];if(!w||w.wk!==wk())w=S.bdone[b.id]={wk:wk(),n:0,won:0};return w}
@@ -165,13 +189,67 @@ function render(){var lv=lvl(totalXP()),h='',td=today();$('#hd').textContent='�
   var n=S.logs[dk()]||0;h+='<div class="card"><h2>📝 Log activity</h2><p class="mut" style="margin-top:0">Did something good that\'s not on the list? +'+LOG_XP+' XP ('+n+'/'+LOG_CAP+' today)</p><input id="logW" placeholder="What did you do? 💪"><div class="row" style="margin-top:8px"><select id="logS">'+S.skills.map(function(s){return '<option value="'+s.id+'">'+s.e+' '+esc(s.n)+'</option>'}).join('')+'</select><button data-a="log">Log it ✨</button></div></div>'}
  if(tab==='bosses'){h+='<div class="card"><h2>🐉 Weekly bosses</h2><p class="mut" style="margin-top:0">Reset every Monday</p>'+S.bosses.filter(function(b){return b.type==='weekly'}).map(function(b){var w=bw(b);return '<div class="q'+(w.won?' done':'')+'"><span class="e">'+b.e+'</span><span class="n">'+esc(b.n)+'<div class="bar" style="margin-top:4px"><i style="width:'+Math.min(100,w.n/b.goal*100)+'%"></i></div><div class="mut">'+w.n+'/'+b.goal+' hits · +'+b.xp+' XP</div></span><button class="chk'+(w.won?' s':'')+'" data-a="hit" data-id="'+b.id+'">'+(w.won?'👑':'💥')+'</button></div>'}).join('')+'</div>';
   var bk=S.bosses.filter(function(b){return b.type==='book'});h+='<div class="card"><h2>📚 Book bosses</h2>'+(bk.length?'':'<p class="mut">Add one with 🔎 Find a book</p>')+bk.map(function(b){return '<div class="q'+(b.won?' done':'')+'"><span class="e">'+b.e+'</span><span class="n">'+esc(b.n)+'<div class="bar" style="margin-top:4px"><i style="width:'+Math.min(100,b.read/b.goal*100)+'%"></i></div><div class="mut">Chapter '+b.read+'/'+b.goal+' · +15 XP each, +'+b.xp+' to finish</div></span>'+(b.won?'<span>🏆</span>':'<button data-a="chap" data-id="'+b.id+'">+1 ch</button>')+'</div>'}).join('')+'</div>'}
- if(tab==='skills'){h+='<div class="card"><h2>💎 Stats</h2><div class="stat">'+Object.keys(S.stats).map(function(k){var sk=S.skills.find(function(s){return CATS[s.id]&&CATS[s.id].stat===k});return '<div>'+k+' · '+(sk?skL(sk.xp):1)+'</div>'}).join('')+'</div></div>';
-  h+='<div class="card"><h2>🌟 Skills</h2>'+S.skills.map(function(s){var L=skL(s.xp),into=L>=10?60:s.xp%60;return '<div style="margin:10px 0"><div class="row"><b>'+s.e+' '+esc(s.n)+'</b><span class="sp"></span><b>Lv '+L+(L>=10?' 🏆':'')+'</b></div><div class="bar"><i style="width:'+into/60*100+'%"></i></div></div>'}).join('')+'</div>'}
+ if(tab==='skills'){h+='<div class="card"><h2>💎 Stats</h2><div class="stat">'+Object.keys(S.stats).filter(function(k){return S.skills.some(function(s){return s.stat===k})}).map(function(k){return '<div>'+esc(k)+' · '+skStatL(k)+'</div>'}).join('')+'</div></div>';
+  h+='<div class="card"><h2>🌟 Skills</h2>'+S.skills.map(function(s){var L=skL(s.xp),P=skL(s.pk||s.xp),into=L>=10?60:s.xp%60,ad=S.alog[dk()]||{};return '<div style="margin:12px 0;padding-bottom:10px;border-bottom:1px dashed var(--pl)"><div class="row"><b>'+esc(s.e)+' '+esc(s.n)+'</b><span class="sp"></span><b>Lv '+L+(L>=10?' 🏆':'')+'</b></div><div class="mut">'+esc(s.stat)+(P>L?' · peak Lv '+P:'')+'</div><div class="bar"><i style="width:'+into/60*100+'%"></i></div>'+
+  (s.un&&s.un[L]?'<div class="ulk">Lv '+L+': <b>'+esc(s.un[L])+'</b>'+(L<10&&s.un[L+1]?' · next: '+esc(s.un[L+1]):'')+'</div>':'')+
+  (s.acts||[]).map(function(a){var n=ad[a.id]||0;return '<div class="q"><span class="n">'+esc(a.n)+'<div class="mut">+'+a.xp+' XP · '+n+'/'+a.cap+' today</div></span><button class="'+(n>=a.cap?'s':'')+'" data-a="slog" data-id="'+s.id+'" data-act="'+a.id+'">'+(n>=a.cap?'Capped':'+ Log')+'</button></div>'}).join('')+
+  '<p style="margin:8px 0 0"><button class="s" data-a="skedit" data-id="'+s.id+'">✏️ Edit</button></p></div>'}).join('')+'<p><button data-a="skadd" style="width:100%">+ Add skill</button></p></div>'}
  if(tab==='find'){h+='<div class="card"><h2>📚 Find a book</h2><div class="row"><input id="bq" placeholder="Title or author"><button data-a="bsearch">🔎</button></div><div id="bres"></div></div>';
   h+='<div class="card"><h2>🍳 Find a recipe</h2><div class="row"><input id="rq" placeholder="e.g. pasta, chicken, cake"><button data-a="rsearch">🔎</button></div><div id="rres"></div></div>'}
  if(tab==='me'){h+='<div class="card"><h2>🌸 Name</h2><input id="nameIn" value="'+esc(S.name)+'"></div>';
   [['dailies','☀️ Daily habits'],['quests','🗺️ Side quests'],['bosses','🐉 Bosses'],['skills','🌟 Skills']].forEach(function(p){var l=p[0];h+='<div class="card"><h2>'+p[1]+'</h2>'+S[l].map(function(q){return '<div class="ed"><input style="width:52px" data-l="'+l+'" data-id="'+q.id+'" data-f="e" value="'+esc(q.e)+'"><input data-l="'+l+'" data-id="'+q.id+'" data-f="n" value="'+esc(q.n)+'">'+(l!=='skills'?'<input class="xp" type="number" data-l="'+l+'" data-id="'+q.id+'" data-f="xp" value="'+q.xp+'">':'')+(l==='bosses'?'<input class="xp" type="number" title="goal" data-l="'+l+'" data-id="'+q.id+'" data-f="goal" value="'+q.goal+'">':'')+'<button class="x" data-a="del" data-l="'+l+'" data-id="'+q.id+'">🗑️</button></div>'}).join('')+'<div class="ed"><input id="new_'+l+'" placeholder="Add new…"><button data-a="add" data-l="'+l+'">+</button></div>'+(l==='bosses'?'<p class="mut">Numbers: XP, then hits needed</p>':l!=='skills'?'<p class="mut">Number = XP</p>':'')+'</div>'});
   h+='<div class="card"><h2>💾 Backup</h2><div class="row"><button data-a="exp">Export</button><button class="s" data-a="imp">Import</button><input type="file" id="impF" accept=".json,application/json" hidden></div><p><button class="s" data-a="reset">Start over 🔄</button></p></div>'}
  $('#main').innerHTML=h}
+// --- skill editor
+var SE=null,EMO=['🌟','🥗','🏃‍♀️','🍳','📚','💼','💕','🛁','🎨','🧘‍♀️','💪','💧','🎶','🌸','✍️','🌱','💰','🗣️','📷','🧠','🙏','🏡','🐶','✈️'];
+function SE_open(id){var k=id&&S.skills.find(function(s){return s.id===id});
+ if(id&&!k)return;if(!k){var un={};UNL.forEach(function(t,i){un[i+1]=t});k={id:uid(),e:'🌟',n:'New skill',xp:0,pk:0,stat:allStats()[0],acts:[],qt:{daily:1,quest:1,weekly:1,book:1,log:1},un:un};SE={isNew:1}}else SE={};
+ SE.k=JSON.parse(JSON.stringify(k));SE.lv=skL(k.xp);SE.pk=skL(k.pk||k.xp);SE.lv0=SE.lv;SE.pk0=SE.pk;
+ var o=$('#ske');if(!o){o=document.createElement('div');o.id='ske';o.className='ske';document.body.appendChild(o)}SE_draw();o.classList.add('show');o.querySelector('.skc').scrollTop=0}
+function SE_close(){SE=null;var o=$('#ske');if(o)o.classList.remove('show')}
+function SE_draw(){var o=$('#ske'),k=SE.k,c=o.querySelector('.skc'),st=c?c.scrollTop:0,stats=allStats();if(stats.indexOf(k.stat)<0)stats.push(k.stat);
+ var h='<div class="skc"><div class="row"><h2 style="margin:0">'+(SE.isNew?'🌟 Add skill':'✏️ Edit skill')+'</h2><span class="sp"></span><button class="s" data-a="secancel">Cancel</button></div>'+
+ '<label class="l">Name</label><input data-se="n" value="'+esc(k.n)+'" maxlength="60">'+
+ '<label class="l">Emoji</label><div class="emo">'+EMO.map(function(e){return '<button class="'+(e===k.e?'on':'')+'" data-a="seemo" data-id="'+e+'">'+e+'</button>'}).join('')+'</div><input data-se="e" value="'+esc(k.e)+'" maxlength="8" placeholder="or type any emoji" style="margin-top:6px">'+
+ '<label class="l">Parent stat</label><select data-se="stat">'+stats.map(function(x){return '<option'+(x===k.stat?' selected':'')+'>'+esc(x)+'</option>'}).join('')+'<option value="__new">+ New stat…</option></select>'+
+ '<label class="l">Activities that earn XP</label>'+(k.acts.length?'':'<p class="mut">None yet. Add one below 👇</p>')+
+ k.acts.map(function(a,i){return '<div class="sa"><div class="row"><input data-sa="n" data-i="'+i+'" value="'+esc(a.n)+'" maxlength="80"><button class="x" data-a="seadel" data-id="'+i+'">🗑️</button></div><div class="g2"><label>XP<input type="number" inputmode="numeric" min="0" data-sa="xp" data-i="'+i+'" value="'+a.xp+'"></label><label>Daily cap<input type="number" inputmode="numeric" min="1" data-sa="cap" data-i="'+i+'" value="'+a.cap+'"></label></div></div>'}).join('')+
+ '<button class="s" data-a="seaadd" style="width:100%">+ Add activity</button>'+
+ '<label class="l">Which quest types count</label>'+QT.map(function(q){return '<label class="ck"><input type="checkbox" data-seqt="'+q[0]+'"'+(k.qt[q[0]]?' checked':'')+'> '+q[1]+'</label>'}).join('')+
+ '<label class="l">Unlocks at each level</label>';
+ for(var L=1;L<=10;L++)h+='<div class="un"><span>Lv '+L+'</span><input data-seun="'+L+'" value="'+esc(k.un[L]||'')+'" maxlength="140"></div>';
+ h+='<label class="l">Set level manually</label><div class="g2"><label>Current level<select data-se="lv">';for(L=1;L<=10;L++)h+='<option'+(L===SE.lv?' selected':'')+'>'+L+'</option>';
+ h+='</select></label><label>Peak level<select data-se="pk">';for(L=1;L<=10;L++)h+='<option'+(L===SE.pk?' selected':'')+'>'+L+'</option>';
+ h+='</select></label></div><p class="mut">Peak can’t be lower than current. You’ll be asked to confirm.</p><div class="row" style="margin-top:12px"><button data-a="sesave" style="flex:1">Save 💖</button>'+(SE.isNew?'':'<button class="s" data-a="sedel">🗑️ Delete skill</button>')+'</div></div>';
+ o.innerHTML=h;o.querySelector('.skc').scrollTop=st}
+function SE_in(t){if(!SE)return;var k=SE.k,d=t.dataset;
+ if(d.se){if(d.se==='stat'&&t.value==='__new'){var n=(prompt('New stat name? (e.g. Peace, Focus)')||'').trim().slice(0,24);if(n)k.stat=n;SE_draw();return}
+  if(d.se==='lv'||d.se==='pk'){SE[d.se]=+t.value;if(SE.pk<SE.lv){if(d.se==='lv')SE.pk=SE.lv;else SE.lv=SE.pk}SE_draw();return}
+  k[d.se]=t.value;if(d.se==='e')document.querySelectorAll('#ske .emo button').forEach(function(b){b.classList.toggle('on',b.dataset.id===t.value)});return}
+ if(d.sa){var a=k.acts[+d.i];if(a)a[d.sa]=t.value;return}
+ if(d.seun){k.un[d.seun]=t.value;return}
+ if(d.seqt){k.qt[d.seqt]=t.checked?1:0;return}}
+function SE_save(){var k=SE.k;k.n=(k.n||'').trim();if(!k.n){toast('Give it a name 💕');return}k.e=(k.e||'').trim()||'🌟';
+ var ch=SE.lv!==SE.lv0||SE.pk!==SE.pk0;if(ch&&!confirm('Set '+k.n+' to Lv '+SE.lv+' (peak Lv '+SE.pk+')? This replaces its earned skill XP.'))return;
+ k.acts=k.acts.filter(function(a){return (a.n||'').trim()}).map(function(a){return{id:a.id,n:a.n.trim(),xp:num(a.xp,0,500,10),cap:num(a.cap,1,20,1)}});
+ var un={};for(var L=1;L<=10;L++)if((k.un[L]||'').trim())un[L]=k.un[L].trim();k.un=un;
+ if(ch){if(SE.lv!==SE.lv0)k.xp=(SE.lv-1)*60;k.pk=SE.pk!==SE.pk0?Math.max(k.xp,(SE.pk-1)*60):Math.max(k.xp,k.pk||0)}
+ var i=S.skills.findIndex(function(s){return s.id===k.id});if(i>=0)S.skills[i]=k;else S.skills.push(k);S.stats[k.stat]=1;
+ var nw=SE.isNew;SE_close();migrate(S);save();render();toast(nw?'🌟 Skill added!':'✏️ Skill saved!')}
+function SE_act(a,x,t){
+ if(a==='skedit'){SE_open(x);return true}if(a==='skadd'){SE_open(null);return true}
+ if(a==='slog'){var k=S.skills.find(function(s){return s.id===x}),ac=k&&(k.acts||[]).find(function(z){return z.id===t.dataset.act});if(!ac)return true;
+  var ad=S.alog[dk()]||(S.alog[dk()]={});if((ad[ac.id]||0)>=ac.cap){toast('Daily cap reached for this one 😴');return true}ad[ac.id]=(ad[ac.id]||0)+1;gain(ac.xp,ac.n,k.id,0,'act');return true}
+ if(!SE)return false;
+ if(a==='secancel'){SE_close();return true}
+ if(a==='seemo'){SE.k.e=x;SE_draw();return true}
+ if(a==='seaadd'){SE.k.acts.push({id:uid(),n:'New activity',xp:10,cap:1});SE_draw();var ins=document.querySelectorAll('#ske [data-sa="n"]'),z=ins[ins.length-1];if(z){z.scrollIntoView({block:'center'});z.focus();z.select()}return true}
+ if(a==='seadel'){SE.k.acts.splice(+x,1);SE_draw();return true}
+ if(a==='sesave'){SE_save();return true}
+ if(a==='sedel'){var k2=SE.k;if(!confirm('Delete the skill "'+k2.n+'"? Its level and activities go away. XP you earned stays.'))return true;
+  S.skills=S.skills.filter(function(s){return s.id!==k2.id});SE_close();save();render();toast('🗑️ Skill deleted');return true}
+ return false}
+document.addEventListener('input',function(ev){var t=ev.target;if(t.closest&&t.closest('#ske')&&t.tagName==='INPUT'&&t.type!=='checkbox')SE_in(t)});
+window.__lu={S:function(){return S},key:KEY};
 S=load();if(S&&S.skills)render();else onboard();
 </script></body></html>
