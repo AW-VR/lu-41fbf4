@@ -1,0 +1,177 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow"><meta name="theme-color" content="#ff6fae">
+<title>Level Up 💖</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💖</text></svg>">
+<style>
+:root{--p:#ff6fae;--pd:#e04890;--pl:#ffe3f0;--bg:#fff5fa;--ink:#5a2a45;--mut:#a0708c;--gold:#ffb84d}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:ui-rounded,"SF Pro Rounded","Nunito","Segoe UI",system-ui,sans-serif;background:linear-gradient(180deg,#ffe0ef,#fff5fa 240px);color:var(--ink);min-height:100vh;padding-bottom:calc(76px + env(safe-area-inset-bottom))}
+header{padding:calc(14px + env(safe-area-inset-top)) 16px 8px;text-align:center}
+h1{margin:0;font-size:22px;color:var(--pd)}h2{font-size:17px;margin:0 0 8px;color:var(--pd)}
+.card{background:#fff;border-radius:20px;padding:14px;margin:10px 12px;box-shadow:0 4px 14px rgba(255,111,174,.15);border:2px solid var(--pl)}
+.bar{height:14px;background:var(--pl);border-radius:10px;overflow:hidden}.bar i{display:block;height:100%;background:linear-gradient(90deg,#ff9ac9,var(--p));border-radius:10px;transition:width .5s}
+.row{display:flex;align-items:center;gap:10px}.sp{flex:1}.mut{color:var(--mut);font-size:13px}
+.q{display:flex;align-items:center;gap:10px;padding:10px 4px;border-bottom:1px dashed var(--pl)}.q:last-child{border:0}
+.q .e{font-size:24px}.q .n{flex:1;font-weight:600}.q.done .n{text-decoration:line-through;color:var(--mut)}
+button{font:inherit;border:0;border-radius:14px;padding:10px 14px;background:var(--p);color:#fff;font-weight:700;cursor:pointer;min-height:42px}
+button.s{background:var(--pl);color:var(--pd)}button.x{background:none;color:var(--mut);padding:6px;min-height:0}
+button:active{transform:scale(.96)}.chk{width:44px;height:44px;border-radius:50%;padding:0;font-size:20px}
+input,select{font:inherit;padding:10px;border-radius:12px;border:2px solid var(--pl);width:100%;color:var(--ink);background:#fff}
+nav{position:fixed;bottom:0;left:0;right:0;background:#fff;display:flex;border-top:2px solid var(--pl);padding-bottom:env(safe-area-inset-bottom);z-index:5}
+nav button{flex:1;background:none;color:var(--mut);border-radius:0;font-size:11px;padding:8px 0;display:flex;flex-direction:column;align-items:center}
+nav button b{font-size:22px}nav button.on{color:var(--pd)}
+.chip{display:inline-block;padding:10px 14px;margin:4px;border-radius:20px;background:var(--pl);color:var(--pd);font-weight:700;cursor:pointer;user-select:none}
+.chip.on{background:var(--p);color:#fff}
+#ob{position:fixed;inset:0;background:linear-gradient(160deg,#ffd1e6,#fff0f7);z-index:20;overflow:auto;padding:24px 18px}
+#ob .big{font-size:56px;text-align:center}#ob h2{text-align:center;font-size:22px}
+.stat{display:grid;grid-template-columns:1fr 1fr;gap:8px}.stat div{background:var(--pl);border-radius:14px;padding:8px 10px;font-weight:700}
+#fx{position:fixed;inset:0;pointer-events:none;z-index:30;overflow:hidden}
+.cf{position:absolute;top:-20px;width:10px;height:14px;border-radius:3px;animation:fall 1.8s ease-in forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(720deg);opacity:.8}}
+.ht{position:absolute;bottom:-40px;font-size:30px;animation:rise 2.4s ease-out forwards}
+@keyframes rise{to{transform:translateY(-110vh) scale(1.4);opacity:0}}
+#toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);background:var(--pd);color:#fff;padding:10px 18px;border-radius:20px;font-weight:700;opacity:0;transition:.3s;z-index:40;max-width:90%;text-align:center}
+#toast.show{opacity:1}
+.res{display:flex;gap:10px;align-items:center;padding:8px 0;border-bottom:1px dashed var(--pl)}.res img{width:48px;height:64px;object-fit:cover;border-radius:8px;background:var(--pl)}
+.reveal{animation:pop .6s}@keyframes pop{0%{transform:scale(.6);opacity:0}80%{transform:scale(1.05)}100%{transform:scale(1)}}
+.ed{display:flex;gap:6px;margin:6px 0}.ed input{padding:8px}.ed .xp{width:64px}
+</style></head><body>
+<header><h1 id="hd">Level Up 💖</h1><div class="mut" id="sub"></div></header>
+<main id="main"></main>
+<nav id="nav"></nav>
+<div id="fx"></div><div id="toast"></div><div id="ob" hidden></div>
+<script>
+var KEY='lu-41fbf4-shermayne-v1';
+var CATS={
+ health:{e:'🥗',n:'Health',stat:'Vitality',skill:'Healthy Living',d:[['💧','Drink 8 glasses of water',10],['🍎','Eat a fruit or veggie',10]],b:['🥦','Eat home-cooked 5 days this week',80,5]},
+ fitness:{e:'🏃‍♀️',n:'Fitness',stat:'Strength',skill:'Fitness',d:[['👟','Move for 20 minutes',15],['🧘‍♀️','Stretch for 5 minutes',10]],b:['💪','Work out 3 times this week',90,3]},
+ cooking:{e:'🍳',n:'Cooking',stat:'Creativity',skill:'Cooking',d:[['🥄','Cook or prep something tasty',15]],b:['👩‍🍳','Try 2 new recipes this week',90,2]},
+ reading:{e:'📚',n:'Reading',stat:'Wisdom',skill:'Reading',d:[['📖','Read for 15 minutes',15]],b:['📚','Read 5 days this week',80,5]},
+ career:{e:'💼',n:'Career & Biz',stat:'Ambition',skill:'Career',d:[['🎯','One focused hour on a big goal',20]],b:['🚀','Ship one thing you\'re proud of',100,1]},
+ relationship:{e:'💕',n:'Relationship',stat:'Love',skill:'Relationship',d:[['💌','Send a sweet message',10]],b:['🌹','Plan a date night this week',100,1],date:true},
+ selfcare:{e:'🛁',n:'Self-care',stat:'Glow',skill:'Self-care',d:[['✨','Skincare routine',10],['😴','In bed by 11pm',10]],b:['🛁','Pamper evening twice this week',80,2]},
+ hobbies:{e:'🎨',n:'Hobbies',stat:'Joy',skill:'Hobbies',d:[['🎨','20 minutes on a hobby',15]],b:['🌸','Finish a mini hobby project',90,1]}
+};
+var DATES=[['🍝','Cook dinner together',40],['🎬','Movie night with snacks',30],['🌅','Sunset walk together',30],['💃','Try something new together',50]];
+var LOG_CAP=5,LOG_XP=10;
+var $=function(s){return document.querySelector(s)},S,tab='today';
+function uid(){return Math.random().toString(36).slice(2,9)}
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return '&#'+c.charCodeAt(0)+';'})}
+function dk(d){d=d||new Date();return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2)}
+function wk(){var d=new Date();d.setDate(d.getDate()-((d.getDay()+6)%7));return dk(d)}
+function load(){try{return JSON.parse(localStorage.getItem(KEY))}catch(e){return null}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast('Could not save 😢')}}
+function need(L){return 100+50*(L-1)}
+function lvl(xp){var L=1;while(xp>=need(L)){xp-=need(L);L++}return{L:L,into:xp,need:need(L)}}
+function skL(xp){return Math.min(10,1+Math.floor(xp/60))}
+function toast(m){var t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove('show')},2200)}
+// --- audio + fx
+var AC;function chime(love){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();var notes=love?[659,784,988,1319]:[523,659,784,1047];var t=AC.currentTime;
+ notes.forEach(function(f,i){var o=AC.createOscillator(),g=AC.createGain();o.type=love?'sine':'triangle';o.frequency.value=f;g.gain.setValueAtTime(0,t+i*.1);g.gain.linearRampToValueAtTime(.25,t+i*.1+.02);g.gain.exponentialRampToValueAtTime(.001,t+i*.1+(i==3?.6:.25));o.connect(g);g.connect(AC.destination);o.start(t+i*.1);o.stop(t+i*.1+.7)})}catch(e){}}
+function confetti(){var fx=$('#fx'),C=['#ff6fae','#ffb84d','#b38cff','#7fd8ff','#ff9ac9','#fff176'];for(var i=0;i<70;i++){var c=document.createElement('i');c.className='cf';c.style.left=Math.random()*100+'%';c.style.background=C[i%C.length];c.style.animationDelay=Math.random()*.5+'s';c.style.animationDuration=(1.4+Math.random())+'s';fx.appendChild(c);setTimeout(c.remove.bind(c),2600)}}
+function hearts(){var fx=$('#fx'),H=['💖','💕','💗','💘','❤️','💞'];for(var i=0;i<24;i++){var h=document.createElement('i');h.className='ht';h.textContent=H[i%H.length];h.style.left=Math.random()*92+'%';h.style.animationDelay=Math.random()*.8+'s';fx.appendChild(h);setTimeout(h.remove.bind(h),3400)}}
+function celebrate(love){chime(love);love?hearts():confetti()}
+// --- xp
+function totalXP(){return S.log.reduce(function(a,l){return a+l.xp},0)}
+function gain(xp,what,skill,love){var before=lvl(totalXP()).L;S.log.push({d:dk(),xp:xp,w:what});if(S.log.length>3000)S.log=S.log.slice(-3000);
+ var sk=S.skills.find(function(s){return s.id===skill});if(sk){var o=skL(sk.xp);sk.xp+=xp;if(skL(sk.xp)>o)setTimeout(function(){toast(sk.e+' '+sk.n+' is now Lv '+skL(sk.xp)+'!')},1200)}
+ S.chapter.xp+=xp;save();celebrate(love);var a=lvl(totalXP()).L;toast(a>before?'🎉 LEVEL UP! You\'re Level '+a+' 👑':'+'+xp+' XP '+(love?'💕':'✨'));render()}
+// --- plan builder
+function build(a){var s={v:1,name:a.name||'Shermayne',days:a.days||4,likes:a.likes||'',cats:a.cats,stats:{},skills:[],dailies:[],bosses:[],quests:[],done:{},bdone:{},logs:{},log:[],chapter:{n:1,xp:0}};
+ a.cats.forEach(function(k){var c=CATS[k];s.stats[c.stat]=1;var sid=k;s.skills.push({id:sid,e:c.e,n:c.skill,xp:0});
+  c.d.slice(0,a.days>=5?2:1).forEach(function(d){s.dailies.push({id:uid(),e:d[0],n:d[1],xp:d[2],sk:sid,love:!!c.date})});
+  s.bosses.push({id:uid(),type:'weekly',e:c.b[0],n:c.b[1],xp:c.b[2],goal:Math.min(c.b[3],a.days),sk:sid,love:!!c.date});
+  if(c.date)DATES.slice(0,2).forEach(function(d){s.quests.push({id:uid(),e:d[0],n:d[1],xp:d[2],sk:sid,love:true})})});
+ if(a.likes){a.likes.split(/,|\band\b/).map(function(x){return x.trim()}).filter(Boolean).slice(0,3).forEach(function(x){s.quests.push({id:uid(),e:'🌟',n:'Spend time on: '+x,xp:25,sk:a.cats.indexOf('hobbies')>=0?'hobbies':(a.cats.indexOf('reading')>=0?'reading':a.cats[0])})})}
+ s.chapter.title=chTitle(1,s);s.chapter.goal=chGoal(1,s);return s}
+function chTitle(n,s){var t=['The Glow-Up Begins 🌱','Finding My Rhythm 🎶','Main Character Energy 💅','Unstoppable Queen 👑','Legendary Bloom 🌸'];return 'Chapter '+n+': '+(t[n-1]||'Even More Fabulous ✨')}
+function chGoal(n,s){return Math.round((150+60*s.dailies.length)*(1+.3*(n-1))/10)*10}
+// --- onboarding
+var OA;function onboard(){OA={cats:[],days:4,likes:'',name:''};obStep(0)}
+function obStep(i){var o=$('#ob');o.hidden=false;var h='';
+ if(i===0)h='<div class="big">💖✨</div><h2>Hi gorgeous! Let\'s make your Level Up</h2><p style="text-align:center">4 quick questions and I\'ll build your quests, skills & bosses. Takes 30 seconds 💅</p><label>What should I call you? 🌸</label><input id="obName" placeholder="Your name" value="'+esc(OA.name||'Shermayne')+'"><p><button id="obN0" style="width:100%">Let\'s go! 🚀</button></p>';
+ if(i===1){h='<div class="big">🌷</div><h2>What do you want to get better at?</h2><p class="mut" style="text-align:center">Pick as many as you like</p><div style="text-align:center">';for(var k in CATS)h+='<span class="chip'+(OA.cats.indexOf(k)>=0?' on':'')+'" data-cat="'+k+'">'+CATS[k].e+' '+CATS[k].n+'</span>';h+='</div><p><button id="obN1" style="width:100%">Next 💕</button></p>'}
+ if(i===2){h='<div class="big">📅</div><h2>How many days a week can you commit?</h2><div style="text-align:center">';for(var d=1;d<=7;d++)h+='<span class="chip'+(OA.days===d?' on':'')+'" data-days="'+d+'">'+d+'</span>';h+='</div><p class="mut" style="text-align:center">Be gentle with yourself — consistency beats perfection 🫶</p><p><button id="obN2" style="width:100%">Next ✨</button></p>'}
+ if(i===3)h='<div class="big">📚🎨</div><h2>Any books or hobbies you\'re into?</h2><input id="obLikes" placeholder="e.g. Fourth Wing, pottery, piano" value="'+esc(OA.likes)+'"><p class="mut">Separate with commas. Optional!</p><p><button id="obN3" style="width:100%">Build my plan 🪄</button></p>';
+ if(i===4){var s=S;h='<div class="reveal"><div class="big">🎉👑</div><h2>Here\'s your plan, '+esc(s.name)+'!</h2>'+
+  '<div class="card"><h2>💎 Your stats</h2><div class="stat">'+Object.keys(s.stats).map(function(k){return '<div>'+k+' · 1</div>'}).join('')+'</div></div>'+
+  '<div class="card"><h2>🌟 Skills (Lv 1 → 10)</h2>'+s.skills.map(function(k){return '<div>'+k.e+' '+esc(k.n)+' · Lv 1</div>'}).join('')+'</div>'+
+  '<div class="card"><h2>☀️ Daily habits</h2>'+s.dailies.map(function(q){return '<div>'+q.e+' '+esc(q.n)+' <span class="mut">+'+q.xp+'</span></div>'}).join('')+'</div>'+
+  '<div class="card"><h2>🐉 Weekly bosses</h2>'+s.bosses.map(function(q){return '<div>'+q.e+' '+esc(q.n)+'</div>'}).join('')+'</div>'+
+  '<div class="card"><h2>📖 '+esc(s.chapter.title)+'</h2><div>Earn '+s.chapter.goal+' XP to unlock Chapter 2</div></div>'+
+  '<p class="mut" style="text-align:center">Everything is editable later in ⚙️ Me</p><p><button id="obGo" style="width:100%">Start my adventure 💖</button></p></div>'}
+ o.innerHTML=h;o.scrollTop=0;if(i===4){confetti();chime()}}
+document.addEventListener('click',function(ev){var t=ev.target.closest('[id],[data-cat],[data-days],[data-a]');if(!t)return;
+ if(t.dataset.cat){var k=t.dataset.cat,j=OA.cats.indexOf(k);j>=0?OA.cats.splice(j,1):OA.cats.push(k);t.classList.toggle('on');return}
+ if(t.dataset.days){OA.days=+t.dataset.days;obStep(2);return}
+ var id=t.id;
+ if(id==='obN0'){OA.name=$('#obName').value.trim()||'Shermayne';obStep(1);return}
+ if(id==='obN1'){if(!OA.cats.length){toast('Pick at least one 💕');return}obStep(2);return}
+ if(id==='obN2'){obStep(3);return}
+ if(id==='obN3'){OA.likes=$('#obLikes').value.trim();S=build(OA);save();obStep(4);return}
+ if(id==='obGo'){$('#ob').hidden=true;tab='today';render();return}
+ var a=t.dataset.a;if(!a)return;var x=t.dataset.id;act(a,x,t)});
+// --- actions
+function today(){return S.done[dk()]||(S.done[dk()]={})}
+function find(arr,id){return arr.find(function(q){return q.id===id})}
+function act(a,x,t){var q;
+ if(a==='tab'){tab=x;render();scrollTo(0,0);return}
+ if(a==='daily'){q=find(S.dailies,x);var td=today();if(td[x]){toast('Already done today ✅');return}td[x]=1;
+  S.bosses.forEach(function(b){if(b.type==='weekly'&&b.sk===q.sk){var w=S.bdone[b.id]||(S.bdone[b.id]={wk:wk(),n:0,won:0});if(w.wk!==wk()){w.wk=wk();w.n=0;w.won=0}}});gain(q.xp,q.n,q.sk,q.love);return}
+ if(a==='quest'){q=find(S.quests,x);S.quests=S.quests.filter(function(z){return z.id!==x});(S.doneQ=S.doneQ||[]).push(q);gain(q.xp,q.n,q.sk,q.love);return}
+ if(a==='hit'){q=find(S.bosses,x);var w=bw(q);if(w.won){toast('Boss already beaten this week 👑');return}w.n++;if(w.n>=q.goal){w.won=1;gain(q.xp,'Defeated: '+q.n,q.sk,q.love);toast('🐉 BOSS DEFEATED! +'+q.xp+' XP')}else{save();chime(q.love);render();toast('💥 Hit! '+w.n+'/'+q.goal)}return}
+ if(a==='chap'){q=find(S.bosses,x);q.read++;if(q.read>=q.goal){q.won=1;gain(q.xp,'Finished book: '+q.n,'reading');toast('📚 BOOK BOSS DEFEATED! +'+q.xp+' XP')}else gain(15,'Read a chapter of '+q.n,S.skills.find(function(s){return s.id==='reading'})?'reading':null);return}
+ if(a==='log'){var n=S.logs[dk()]||0;if(n>=LOG_CAP){toast('Daily cap reached ('+LOG_CAP+') — rest, queen 😴');return}var what=$('#logW').value.trim()||'Did something good',sk=$('#logS').value;S.logs[dk()]=n+1;gain(LOG_XP,what,sk);return}
+ if(a==='nextch'){S.chapter.n++;S.chapter.xp=0;S.chapter.title=chTitle(S.chapter.n,S);S.chapter.goal=chGoal(S.chapter.n,S);save();celebrate();toast('📖 '+S.chapter.title);render();return}
+ if(a==='bsearch'){bookSearch($('#bq').value);return}
+ if(a==='rsearch'){recipeSearch($('#rq').value);return}
+ if(a==='addbook'){var r=window._books[+x];var ch=+prompt('How many chapters in "'+r.title+'"? 📖',r.ch)||r.ch;S.bosses.push({id:uid(),type:'book',e:'📕',n:r.title,by:r.by,goal:ch,read:0,xp:Math.max(100,ch*5)});save();toast('📕 Book boss added!');tab='bosses';render();return}
+ if(a==='addrec'){var m=window._meals[+x];S.quests.push({id:uid(),e:'🍳',n:'Cook: '+m.n,xp:40,sk:S.skills.find(function(s){return s.id==='cooking'})?'cooking':S.skills[0].id,url:m.u});save();toast('🍳 Recipe quest added!');tab='today';render();return}
+ if(a==='del'){var arr=S[t.dataset.l];S[t.dataset.l]=arr.filter(function(z){return z.id!==x});save();render();return}
+ if(a==='add'){var l=t.dataset.l,n=$('#new_'+l).value.trim();if(!n)return;var sk0=S.skills[0]?S.skills[0].id:null;
+  if(l==='dailies')S.dailies.push({id:uid(),e:'⭐',n:n,xp:10,sk:sk0});
+  if(l==='quests')S.quests.push({id:uid(),e:/date|together|love/i.test(n)?'💕':'⭐',n:n,xp:25,sk:sk0,love:/date|together|love|kiss|romantic/i.test(n)});
+  if(l==='bosses')S.bosses.push({id:uid(),type:'weekly',e:'🐉',n:n,xp:80,goal:3,sk:sk0});
+  if(l==='skills')S.skills.push({id:uid(),e:'🌟',n:n,xp:0});save();render();return}
+ if(a==='exp'){var b=new Blob([JSON.stringify(Object.assign({app:'levelup-shermayne',exportedAt:new Date().toISOString()},S),null,1)],{type:'application/json'});var l2=document.createElement('a');l2.href=URL.createObjectURL(b);l2.download='levelup-'+dk()+'.json';document.body.appendChild(l2);l2.click();l2.remove();toast('💾 Exported!');return}
+ if(a==='imp'){$('#impF').click();return}
+ if(a==='reset'){if(confirm('Start over from the questions? This erases progress (export first!)')){localStorage.removeItem(KEY);onboard()}return}
+}
+document.addEventListener('change',function(ev){var t=ev.target;
+ if(t.id==='impF'&&t.files[0]){var r=new FileReader();r.onload=function(){try{var d=JSON.parse(r.result);if(!d.skills||!d.log)throw 0;delete d.app;delete d.exportedAt;S=d;save();render();toast('📥 Progress imported!')}catch(e){toast('That file doesn\'t look right 😕')}};r.readAsText(t.files[0]);return}
+ if(t.dataset.f){var arr=S[t.dataset.l],q=find(arr,t.dataset.id);if(!q)return;var v=t.value;if(t.dataset.f==='xp'||t.dataset.f==='goal')v=Math.max(1,+v||1);if(t.dataset.f==='love')v=t.checked;q[t.dataset.f]=v;save();toast('Saved ✏️')}
+ if(t.id==='nameIn'){S.name=t.value||S.name;save();render()}});
+function bw(b){var w=S.bdone[b.id];if(!w||w.wk!==wk())w=S.bdone[b.id]={wk:wk(),n:0,won:0};return w}
+// --- APIs
+function bookSearch(q){if(!q)return;var o=$('#bres');o.innerHTML='<p class="mut">Searching… 🔎</p>';
+ fetch('https://openlibrary.org/search.json?limit=8&fields=title,author_name,cover_i,number_of_pages_median&q='+encodeURIComponent(q)).then(function(r){return r.json()}).then(function(d){
+  window._books=(d.docs||[]).map(function(b){return{title:b.title,by:(b.author_name||[''])[0],cov:b.cover_i,ch:Math.max(5,Math.round((b.number_of_pages_median||300)/15))}});
+  o.innerHTML=window._books.length?window._books.map(function(b,i){return '<div class="res">'+(b.cov?'<img src="https://covers.openlibrary.org/b/id/'+b.cov+'-S.jpg" alt="">':'<img alt="">')+'<div class="sp"><b>'+esc(b.title)+'</b><div class="mut">'+esc(b.by)+'</div></div><button data-a="addbook" data-id="'+i+'">+ Boss</button></div>'}).join(''):'<p class="mut">No books found 🥲</p>'}).catch(function(){o.innerHTML='<p class="mut">Couldn\'t reach Open Library 😢</p>'})}
+function recipeSearch(q){if(!q)return;var o=$('#rres');o.innerHTML='<p class="mut">Searching… 🔎</p>';
+ fetch('https://www.themealdb.com/api/json/v1/1/search.php?s='+encodeURIComponent(q)).then(function(r){return r.json()}).then(function(d){
+  window._meals=(d.meals||[]).slice(0,8).map(function(m){return{n:m.strMeal,img:m.strMealThumb,c:m.strArea+' · '+m.strCategory,u:m.strSource||m.strYoutube||''}});
+  o.innerHTML=window._meals.length?window._meals.map(function(m,i){return '<div class="res"><img src="'+esc(m.img)+'/preview" alt=""><div class="sp"><b>'+esc(m.n)+'</b><div class="mut">'+esc(m.c)+'</div></div><button data-a="addrec" data-id="'+i+'">+ Quest</button></div>'}).join(''):'<p class="mut">No recipes found 🥲</p>'}).catch(function(){o.innerHTML='<p class="mut">Couldn\'t reach TheMealDB 😢</p>'})}
+// --- render
+function render(){var lv=lvl(totalXP()),h='',td=today();$('#hd').textContent='💖 '+S.name+'\'s Level Up';
+ $('#sub').textContent='Level '+lv.L+' · '+totalXP()+' XP total';
+ var tabs=[['today','🌸','Today'],['bosses','🐉','Bosses'],['skills','💎','Skills'],['find','🔎','Find'],['me','⚙️','Me']];
+ $('#nav').innerHTML=tabs.map(function(t){return '<button data-a="tab" data-id="'+t[0]+'" class="'+(tab===t[0]?'on':'')+'"><b>'+t[1]+'</b>'+t[2]+'</button>'}).join('');
+ h+='<div class="card"><div class="row"><b>👑 Level '+lv.L+'</b><span class="sp"></span><span class="mut">'+lv.into+' / '+lv.need+' XP</span></div><div class="bar"><i style="width:'+(lv.into/lv.need*100)+'%"></i></div></div>';
+ if(tab==='today'){var c=S.chapter,cp=Math.min(1,c.xp/c.goal);
+  h+='<div class="card"><h2>📖 '+esc(c.title)+'</h2><div class="bar"><i style="width:'+cp*100+'%"></i></div><div class="mut" style="margin-top:6px">'+Math.min(c.xp,c.goal)+' / '+c.goal+' chapter XP</div>'+(cp>=1?'<p><button data-a="nextch">Unlock Chapter '+(c.n+1)+' 🔓</button></p>':'')+'</div>';
+  h+='<div class="card"><h2>☀️ Daily habits</h2>'+(S.dailies.length?'':'<p class="mut">No dailies yet — add some in ⚙️ Me</p>')+S.dailies.map(function(q){var d=td[q.id];return '<div class="q'+(d?' done':'')+'"><span class="e">'+q.e+'</span><span class="n">'+esc(q.n)+'<div class="mut">+'+q.xp+' XP</div></span><button class="chk'+(d?' s':'')+'" data-a="daily" data-id="'+q.id+'" aria-label="Complete">'+(d?'✅':'✓')+'</button></div>'}).join('')+'</div>';
+  h+='<div class="card"><h2>🗺️ Side quests</h2>'+(S.quests.length?'':'<p class="mut">All done! Find a recipe in 🔎 or add one in ⚙️</p>')+S.quests.map(function(q){return '<div class="q"><span class="e">'+q.e+'</span><span class="n">'+esc(q.n)+'<div class="mut">+'+q.xp+' XP'+(q.love?' · 💕 date quest':'')+(q.url?' · <a href="'+esc(q.url)+'" target="_blank" rel="noopener">recipe</a>':'')+'</div></span><button class="chk" data-a="quest" data-id="'+q.id+'" aria-label="Complete">'+(q.love?'💕':'✓')+'</button></div>'}).join('')+'</div>';
+  var n=S.logs[dk()]||0;h+='<div class="card"><h2>📝 Log activity</h2><p class="mut" style="margin-top:0">Did something good that\'s not on the list? +'+LOG_XP+' XP ('+n+'/'+LOG_CAP+' today)</p><input id="logW" placeholder="What did you do? 💪"><div class="row" style="margin-top:8px"><select id="logS">'+S.skills.map(function(s){return '<option value="'+s.id+'">'+s.e+' '+esc(s.n)+'</option>'}).join('')+'</select><button data-a="log">Log it ✨</button></div></div>'}
+ if(tab==='bosses'){h+='<div class="card"><h2>🐉 Weekly bosses</h2><p class="mut" style="margin-top:0">Reset every Monday</p>'+S.bosses.filter(function(b){return b.type==='weekly'}).map(function(b){var w=bw(b);return '<div class="q'+(w.won?' done':'')+'"><span class="e">'+b.e+'</span><span class="n">'+esc(b.n)+'<div class="bar" style="margin-top:4px"><i style="width:'+Math.min(100,w.n/b.goal*100)+'%"></i></div><div class="mut">'+w.n+'/'+b.goal+' hits · +'+b.xp+' XP</div></span><button class="chk'+(w.won?' s':'')+'" data-a="hit" data-id="'+b.id+'">'+(w.won?'👑':'💥')+'</button></div>'}).join('')+'</div>';
+  var bk=S.bosses.filter(function(b){return b.type==='book'});h+='<div class="card"><h2>📚 Book bosses</h2>'+(bk.length?'':'<p class="mut">Add one with 🔎 Find a book</p>')+bk.map(function(b){return '<div class="q'+(b.won?' done':'')+'"><span class="e">'+b.e+'</span><span class="n">'+esc(b.n)+'<div class="bar" style="margin-top:4px"><i style="width:'+Math.min(100,b.read/b.goal*100)+'%"></i></div><div class="mut">Chapter '+b.read+'/'+b.goal+' · +15 XP each, +'+b.xp+' to finish</div></span>'+(b.won?'<span>🏆</span>':'<button data-a="chap" data-id="'+b.id+'">+1 ch</button>')+'</div>'}).join('')+'</div>'}
+ if(tab==='skills'){h+='<div class="card"><h2>💎 Stats</h2><div class="stat">'+Object.keys(S.stats).map(function(k){var sk=S.skills.find(function(s){return CATS[s.id]&&CATS[s.id].stat===k});return '<div>'+k+' · '+(sk?skL(sk.xp):1)+'</div>'}).join('')+'</div></div>';
+  h+='<div class="card"><h2>🌟 Skills</h2>'+S.skills.map(function(s){var L=skL(s.xp),into=L>=10?60:s.xp%60;return '<div style="margin:10px 0"><div class="row"><b>'+s.e+' '+esc(s.n)+'</b><span class="sp"></span><b>Lv '+L+(L>=10?' 🏆':'')+'</b></div><div class="bar"><i style="width:'+into/60*100+'%"></i></div></div>'}).join('')+'</div>'}
+ if(tab==='find'){h+='<div class="card"><h2>📚 Find a book</h2><div class="row"><input id="bq" placeholder="Title or author"><button data-a="bsearch">🔎</button></div><div id="bres"></div></div>';
+  h+='<div class="card"><h2>🍳 Find a recipe</h2><div class="row"><input id="rq" placeholder="e.g. pasta, chicken, cake"><button data-a="rsearch">🔎</button></div><div id="rres"></div></div>'}
+ if(tab==='me'){h+='<div class="card"><h2>🌸 Name</h2><input id="nameIn" value="'+esc(S.name)+'"></div>';
+  [['dailies','☀️ Daily habits'],['quests','🗺️ Side quests'],['bosses','🐉 Bosses'],['skills','🌟 Skills']].forEach(function(p){var l=p[0];h+='<div class="card"><h2>'+p[1]+'</h2>'+S[l].map(function(q){return '<div class="ed"><input style="width:52px" data-l="'+l+'" data-id="'+q.id+'" data-f="e" value="'+esc(q.e)+'"><input data-l="'+l+'" data-id="'+q.id+'" data-f="n" value="'+esc(q.n)+'">'+(l!=='skills'?'<input class="xp" type="number" data-l="'+l+'" data-id="'+q.id+'" data-f="xp" value="'+q.xp+'">':'')+(l==='bosses'?'<input class="xp" type="number" title="goal" data-l="'+l+'" data-id="'+q.id+'" data-f="goal" value="'+q.goal+'">':'')+'<button class="x" data-a="del" data-l="'+l+'" data-id="'+q.id+'">🗑️</button></div>'}).join('')+'<div class="ed"><input id="new_'+l+'" placeholder="Add new…"><button data-a="add" data-l="'+l+'">+</button></div>'+(l==='bosses'?'<p class="mut">Numbers: XP, then hits needed</p>':l!=='skills'?'<p class="mut">Number = XP</p>':'')+'</div>'});
+  h+='<div class="card"><h2>💾 Backup</h2><div class="row"><button data-a="exp">Export</button><button class="s" data-a="imp">Import</button><input type="file" id="impF" accept=".json,application/json" hidden></div><p><button class="s" data-a="reset">Start over 🔄</button></p></div>'}
+ $('#main').innerHTML=h}
+S=load();if(S&&S.skills)render();else onboard();
+</script></body></html>
